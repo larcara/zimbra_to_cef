@@ -72,6 +72,11 @@ cef_sender=CEF::UDPSender.new
 cef_sender.receiver=@receiver_host
 cef_sender.receiverPort=@receiver_port
 
+#REGEXP
+time_and_pid= /(?<time>[\w]+\s+[\d]+\s[\d:]+)\s+(?<host>[\w]+)\s+(?<process>[\w\/]+)\[(?<pid>[\d]+)\]\:/
+format1= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\s(?<data>.+)/
+format2= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sfrom=(?<from_address>[^,]+),\ssize=(?<size>[^,]+),\snrcpt=(?<nrcpt>[\w]+)\s\((?<message>(.*))\)/
+format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\sorig_to=(?<orig_to_address>[^,]+),\srelay=(?<relay>[^,]+),\sdelay=(?<delay>[^,]+),\sdelays=(?<delays>[^,]+),\sdsn=(?<dns>[^,]+),\sstatus=(?<status>[\w]+)\s\((?<message>(.*))\)/
 
 
 #File.open(filename) do |log|
@@ -79,10 +84,15 @@ cef_sender.receiverPort=@receiver_port
   @file.interval # 10
   @file.backward(10)
   @file.tail do |line|
-    if line.match("postfix/(.*)\[(.*)]: ([0-9A-Z]{12,14})")
-      cef_event=CEF::Event.new
-      cef_event.attrs[:deviceCustomString1] = line
-      cef_sender.emit(cef_event)
+    [format2,format3].each do |format|
+
+      if a=line.match(format)
+        cef_event=CEF::Event.new
+        a.names.each do |field|
+          cef_event.attrs[field] = a[field]
+        end
+        cef_sender.emit(cef_event)
+      end
     end
   end
 #end
