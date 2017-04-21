@@ -1,0 +1,23 @@
+GIT
+  remote: https://github.com/larcara/cef.git
+  revision: 99a717b392c796377eaa70be0baa9bfce3e30379
+  branch: master
+  specs:
+    cef (1.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    file-tail (1.2.0)
+      tins (~> 1.0)
+    tins (1.13.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cef!
+  file-tail
+
+BUNDLED WITH
+   1.14.4
