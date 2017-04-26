@@ -47,7 +47,7 @@ end
 
 def match_to_event(match_data, cef_event)
   match_data.names.each do |field|
-    value = a[field]
+    value = match_data[field]
     value = DateTime.parse(value) if field == "eventTime"
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
