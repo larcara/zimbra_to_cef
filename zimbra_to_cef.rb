@@ -88,7 +88,7 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
   @file.tail do |line|
       cef_event = nil
       PostfixMatch::TO_SKIP.each do |reg_exp|
-        puts "testing skipping #{reg_exp}" if @verbose > 1
+        puts "testing skipping #{reg_exp}" if @verbose > 2
         a = line.match(reg_exp)
         if a
           cef_event = true
@@ -97,7 +97,7 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
       end
       break if cef_event # skip if skipped!
       PostfixMatch::REG_EXPS.each do |reg_exp|
-        puts "testing #{reg_exp}" if @verbose > 1
+        puts "testing #{reg_exp}" if @verbose > 2
         a = line.match(reg_exp)
         if a
           cef_event=CEF::Event.new
@@ -106,9 +106,10 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
             cef_event.attrs[field] = a[field]
           end
           cef_sender.emit(cef_event) if cef_sender
+          puts cef_event.to_s unless cef_sender
           break
         end
       end
-      puts line if cef_event.nil? if @verbose > 0
+      puts line if (cef_event.nil? && @verbose > 0)
   end
 #end
