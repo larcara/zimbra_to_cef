@@ -10,6 +10,6 @@ module PostfixMatch
   CONNECT= /#{TIME_AND_PID}\s:\sconnect from (?<data>.+)/
   DISCONNECT= /#{TIME_AND_PID}\s:\sdisconnect from (?<data>.+)/
 
-  REG_EXPS = [TO,TO_ORIG,FROM,OTHER]
+  REG_EXPS = [MESSAGE_ID,TO,TO_ORIG,FROM,OTHER]
   TO_SKIP = [REMOVED,CONNECT,DISCONNECT]
 end
