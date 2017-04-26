@@ -110,7 +110,7 @@ end
 @name               ||= "unnamed event"
 
 exit(0) if @file.nil?
-
+puts @maps.inspect if @verbose > 1
 if @receiver_host
   cef_sender=CEF::UDPSender.new
   cef_sender.receiver=@receiver_host
