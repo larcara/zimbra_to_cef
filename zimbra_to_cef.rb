@@ -105,37 +105,38 @@ end
           break
         end
       end
-      break if cef_event # skip if skipped!
-      PostfixMatch::REG_EXPS.each do |reg_exp|
-        puts "testing #{reg_exp}" if @verbose > 2
-        a = line.match(reg_exp)
-        if a
-          cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
-          a.names.each do |field|
-            puts "#{field}: #{a[field]}" if @verbose > 1
-            method_name =  "#{field}=".to_sym
-            cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
+      unless cef_event # skip if skipped!
+        PostfixMatch::REG_EXPS.each do |reg_exp|
+          puts "testing #{reg_exp}" if @verbose > 2
+          a = line.match(reg_exp)
+          if a
+            cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
+            a.names.each do |field|
+              puts "#{field}: #{a[field]}" if @verbose > 1
+              method_name =  "#{field}=".to_sym
+              cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
+            end
+            cef_sender.emit(cef_event) if cef_sender
+            puts cef_event.to_s unless cef_sender
+            break
           end
-          cef_sender.emit(cef_event) if cef_sender
-          puts cef_event.to_s unless cef_sender
-          break
         end
-      end
-      break if cef_event # skip if found on postfix!
-      MailboxMatch::REG_EXPS.each do |reg_exp|
-        puts "testing #{reg_exp}" if @verbose > 2
-        a = line.match(reg_exp)
-        if a
-          cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct,
-                                   deviceEventClassId: "0:event", name: "mailbox event")
-          a.names.each do |field|
-            puts "#{field}: #{a[field]}" if @verbose > 1
-            method_name =  "#{field}=".to_sym
-            cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
+        #break if cef_event # skip if found on postfix!
+        MailboxMatch::REG_EXPS.each do |reg_exp|
+          puts "testing #{reg_exp}" if @verbose > 2
+          a = line.match(reg_exp)
+          if a
+            cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct,
+                                     deviceEventClassId: "0:event", name: "mailbox event")
+            a.names.each do |field|
+              puts "#{field}: #{a[field]}" if @verbose > 1
+              method_name =  "#{field}=".to_sym
+              cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
+            end
+            cef_sender.emit(cef_event) if cef_sender
+            puts cef_event.to_s unless cef_sender
+            break
           end
-          cef_sender.emit(cef_event) if cef_sender
-          puts cef_event.to_s unless cef_sender
-          break
         end
       end
       puts line if (cef_event.nil? && @verbose > 0)
