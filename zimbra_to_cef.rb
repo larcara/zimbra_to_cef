@@ -2,6 +2,7 @@ require 'rubygems'
 require 'cef'
 require 'getoptlong'
 require "file-tail"
+require_relative "./postfix_match.rb"
 
 @verbose=0
 @file=nil
@@ -68,10 +69,11 @@ end
 
 exit(0) if @file.nil?
 
-cef_sender=CEF::UDPSender.new
-cef_sender.receiver=@receiver_host
-cef_sender.receiverPort=@receiver_port
-
+if @receiver_host
+  cef_sender=CEF::UDPSender.new
+  cef_sender.receiver=@receiver_host
+  cef_sender.receiverPort=@receiver_port
+end
 #REGEXP
 time_and_pid= /(?<time>[\w]+\s+[\d]+\s[\d:]+)\s+(?<host>[\w]+)\s+(?<process>[\w\/]+)\[(?<pid>[\d]+)\]\:/
 format1= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\s(?<data>.+)/
@@ -84,15 +86,28 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
   @file.interval # 10
   @file.backward(10)
   @file.tail do |line|
-    [format2,format3].each do |format|
-
-      if a=line.match(format)
-        cef_event=CEF::Event.new
-        a.names.each do |field|
-          cef_event.attrs[field] = a[field]
+      cef_event = nil
+      PostfixMatch::REG_EXPS.each do |reg_exp|
+        puts "testing #{reg_exp}" if @verbose > 1
+        a = line.match(reg_exp)
+        if a
+          cef_event=CEF::Event.new
+          a.names.each do |field|
+            puts "#{field}: #{a[field]}" if @verbose > 2
+            cef_event.attrs[field] = a[field]
+          end
+          cef_sender.emit(cef_event) if cef_sender
+          break
         end
-        cef_sender.emit(cef_event)
       end
-    end
+      PostfixMatch::TO_SKIP.each do |reg_exp|
+        puts "testing skipping #{reg_exp}" if @verbose > 1
+        a = line.match(reg_exp)
+        if a
+          cef_event = true
+          break
+        end
+      end
+    puts line if cef_event.nil?
   end
 #end
