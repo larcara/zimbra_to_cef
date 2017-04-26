@@ -49,6 +49,7 @@ end
 def match_to_event(match_data, cef_event)
   match_data.names.each do |_field|
     value = match_data[_field]
+    puts _field
     field = @maps.has_key?(_field) ?  @maps[_field] : _field
     value = DateTime.parse(value) if field == :eventTime
     puts "#{field}: #{value}" if @verbose > 1
@@ -111,6 +112,7 @@ end
 
 exit(0) if @file.nil?
 puts @maps.inspect if @verbose > 1
+
 if @receiver_host
   cef_sender=CEF::UDPSender.new
   cef_sender.receiver=@receiver_host
@@ -118,7 +120,7 @@ if @receiver_host
 end
   @file.extend(File::Tail)
   @file.interval # 10
-  @file.backward(100)
+  @file.backward(10)
   @file.tail do |line|
 
 
