@@ -159,7 +159,7 @@ end
           end
         end
       end
-      puts line if (cef_event.nil? && @verbose > 0)
+      puts line if (cef_event.nil? && @verbose > 1)
   end
 
 
