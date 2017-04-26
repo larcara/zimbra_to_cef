@@ -3,6 +3,7 @@ require 'cef'
 require 'getoptlong'
 require "file-tail"
 require_relative "./postfix_match.rb"
+require_relative "./mailbox_match.rb"
 
 @verbose=0
 @file=nil
@@ -13,6 +14,9 @@ opts=GetoptLong.new(
     ["--receiver",      GetoptLong::OPTIONAL_ARGUMENT],
     ["--receiverPort",  GetoptLong::OPTIONAL_ARGUMENT],
     ["--input-file",   GetoptLong::OPTIONAL_ARGUMENT],
+    ["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
+    ["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
+
 )
 
 
@@ -26,7 +30,8 @@ Usage: zimbra_to_cef --sourceAddress="192.168.1.1" [--eventAttribute="something"
      --receiver= syslog receiver hostname/ip
      --receiverPort= syslog port
      --input-file=  filename to input messagge cef message to
-     
+     --deviceVendor
+     --deviceProduct
      
 
 cef_sender will send CEF-formatted syslog messages to a receiver of your choice.
@@ -45,6 +50,10 @@ opts.each do |opt,arg|
   # TODO: set up cases for startTime, receiptTime, endTime to parse
   #       text and convert to unix time * 1000
   case opt
+    when "--deviceVendor"
+      @deviceVendor = arg
+    when "--deviceProduct"
+      @deviceProduct = arg
     when "--verbose"
       @verbose+=1
     when "--schema"
@@ -67,6 +76,12 @@ opts.each do |opt,arg|
   end
 end
 
+@deviceVendor       ||= "breed.org"
+@deviceProduct      ||= "CEF"
+@deviceVersion      = CEF::VERSION
+@deviceEventClassId ||= "0:event"
+@deviceSeverity     = CEF::SEVERITY_LOW
+@name               ||= "unnamed event"
 
 exit(0) if @file.nil?
 
@@ -79,6 +94,8 @@ end
   @file.interval # 10
   @file.backward(100)
   @file.tail do |line|
+
+
       cef_event = nil
       PostfixMatch::TO_SKIP.each do |reg_exp|
         puts "testing skipping #{reg_exp}" if @verbose > 2
@@ -93,7 +110,24 @@ end
         puts "testing #{reg_exp}" if @verbose > 2
         a = line.match(reg_exp)
         if a
-          cef_event=CEF::Event.new
+          cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
+          a.names.each do |field|
+            puts "#{field}: #{a[field]}" if @verbose > 1
+            method_name =  "#{field}=".to_sym
+            cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
+          end
+          cef_sender.emit(cef_event) if cef_sender
+          puts cef_event.to_s unless cef_sender
+          break
+        end
+      end
+      break if cef_event # skip if found on postfix!
+      MailboxMatch::REG_EXPS.each do |reg_exp|
+        puts "testing #{reg_exp}" if @verbose > 2
+        a = line.match(reg_exp)
+        if a
+          cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct,
+                                   deviceEventClassId: "0:event", name: "mailbox event")
           a.names.each do |field|
             puts "#{field}: #{a[field]}" if @verbose > 1
             method_name =  "#{field}=".to_sym
