@@ -39,7 +39,7 @@ def print_schema(event)
   event.attrs.keys.collect {|k| k.to_s}.sort.each {|a| puts a}
 end
 
-
+@verbose = 0
 opts.each do |opt,arg|
   # TODO: set up cases for startTime, receiptTime, endTime to parse
   #       text and convert to unix time * 1000
@@ -87,19 +87,6 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
   @file.backward(10)
   @file.tail do |line|
       cef_event = nil
-      PostfixMatch::REG_EXPS.each do |reg_exp|
-        puts "testing #{reg_exp}" if @verbose > 1
-        a = line.match(reg_exp)
-        if a
-          cef_event=CEF::Event.new
-          a.names.each do |field|
-            puts "#{field}: #{a[field]}" if @verbose > 2
-            cef_event.attrs[field] = a[field]
-          end
-          cef_sender.emit(cef_event) if cef_sender
-          break
-        end
-      end
       PostfixMatch::TO_SKIP.each do |reg_exp|
         puts "testing skipping #{reg_exp}" if @verbose > 1
         a = line.match(reg_exp)
@@ -108,6 +95,20 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
           break
         end
       end
-    puts line if cef_event.nil?
+      break if cef_event # skip if skipped!
+      PostfixMatch::REG_EXPS.each do |reg_exp|
+        puts "testing #{reg_exp}" if @verbose > 1
+        a = line.match(reg_exp)
+        if a
+          cef_event=CEF::Event.new
+          a.names.each do |field|
+            puts "#{field}: #{a[field]}" if @verbose > 1
+            cef_event.attrs[field] = a[field]
+          end
+          cef_sender.emit(cef_event) if cef_sender
+          break
+        end
+      end
+      puts line if cef_event.nil? if @verbose > 0
   end
 #end
