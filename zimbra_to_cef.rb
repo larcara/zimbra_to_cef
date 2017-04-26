@@ -26,6 +26,7 @@ Usage: zimbra_to_cef --sourceAddress="192.168.1.1" [--eventAttribute="something"
      --receiver= syslog receiver hostname/ip
      --receiverPort= syslog port
      --input-file=  filename to input messagge cef message to
+     -
      
 
 cef_sender will send CEF-formatted syslog messages to a receiver of your choice.
@@ -95,7 +96,8 @@ end
           cef_event=CEF::Event.new
           a.names.each do |field|
             puts "#{field}: #{a[field]}" if @verbose > 1
-            cef_event.send("#{field}=", a[field])
+            method_name =  "#{field}=".to_sym
+            cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
           end
           cef_sender.emit(cef_event) if cef_sender
           puts cef_event.to_s unless cef_sender
