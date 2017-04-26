@@ -119,7 +119,7 @@ if @receiver_host
 end
   @file.extend(File::Tail)
   @file.interval # 10
-  @file.backward(10)
+  @file.backward(100)
   @file.tail do |line|
 
 
