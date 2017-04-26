@@ -47,6 +47,7 @@ def print_schema(event)
 end
 
 def match_to_event(match_data, cef_event)
+  @maps.each_key {|k| cef_event.instance_eval{|| attr_accessor k}}
   match_data.names.each do |_field|
     value = match_data[_field]
     field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
@@ -136,6 +137,7 @@ end
           a = line.match(reg_exp)
           if a
             cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
+
             match_to_event(a, cef_event)
             cef_sender.emit(cef_event) if cef_sender
             puts cef_event.to_s unless cef_sender
