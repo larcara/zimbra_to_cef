@@ -22,7 +22,7 @@ opts=GetoptLong.new(
 
 def print_usage
   puts <<END_USAGE
-Usage: zimbra_to_cef --sourceAddress="192.168.1.1" [--eventAttribute="something"]
+Usage: zimbra_to_cef --sourceAddress="192.168.1.1" [--schema_field=new_field]
 
   non-schema arguments: 
      --help gets you here
@@ -56,7 +56,9 @@ def match_to_event(match_data, cef_event)
 end
 
 
-@verbose = 0
+@maps = {}
+
+
 opts.each do |opt,arg|
   # TODO: set up cases for startTime, receiptTime, endTime to parse
   #       text and convert to unix time * 1000
@@ -70,6 +72,12 @@ opts.each do |opt,arg|
     when "--schema"
       cef_event = CEF::Event.new
       print_schema(cef_event)
+      PostfixMatch::REG_EXPS.each do |x|
+        print x
+      end
+      MailboxMatch::REG_EXPS.each do |x|
+        print x
+      end
       exit(0)
     when "--receiverPort"
       @receiver_port=arg
@@ -80,10 +88,12 @@ opts.each do |opt,arg|
       exit(0)
     when "--input-file"
       @file=File.open(arg)
-    #else
-    #  fieldname = opt.gsub(/-/,'')
-    #  value=arg
-    #  cef_event.send("%s=" % fieldname, value)
+    when "--attribute_map_file"
+      @map_file=File.open(arg)
+    else
+      fieldname = opt.gsub(/-/,'')
+      value=arg
+      @maps[fieldname.to_sym] = value
   end
 end
 
@@ -137,7 +147,7 @@ end
                                      deviceEventClassId: "0:event", name: "mailbox event")
             match_to_event(a, cef_event)
             cef_sender.emit(cef_event) if cef_sender
-            puts cef_event.to_s unless cef_sender
+            puts cef_event.to_s if (cef_sender.nil? || @verbose > 0)
             break
           end
         end
