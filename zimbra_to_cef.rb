@@ -7,6 +7,7 @@ require_relative "./mailbox_match.rb"
 
 @verbose=0
 @file=nil
+cef_event=CEF::Event.new
 opts=GetoptLong.new(
     ["--verbose",       GetoptLong::OPTIONAL_ARGUMENT],
     ["--help",          GetoptLong::OPTIONAL_ARGUMENT],
@@ -16,7 +17,7 @@ opts=GetoptLong.new(
     ["--input-file",   GetoptLong::OPTIONAL_ARGUMENT],
     ["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
     ["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
-
+    *cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
 )
 
 
@@ -49,6 +50,7 @@ def match_to_event(match_data, cef_event)
   match_data.names.each do |field|
     value = match_data[field]
     value = DateTime.parse(value) if field == :eventTime
+    field = @maps[field] if @maps.has_key?(field)
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
     cef_event.send( method_name, value) if cef_event.respond_to?(method_name)
@@ -72,11 +74,13 @@ opts.each do |opt,arg|
     when "--schema"
       cef_event = CEF::Event.new
       print_schema(cef_event)
+      puts "POSTFIX REGEXP"
       PostfixMatch::REG_EXPS.each do |x|
-        print x
+        puts  x
       end
+      puts "MAILBOX REGEXP"
       MailboxMatch::REG_EXPS.each do |x|
-        print x
+        puts x
       end
       exit(0)
     when "--receiverPort"
@@ -93,7 +97,7 @@ opts.each do |opt,arg|
     else
       fieldname = opt.gsub(/-/,'')
       value=arg
-      @maps[fieldname.to_sym] = value
+      @maps[value.to_sym] = fieldname
   end
 end
 
