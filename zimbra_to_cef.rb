@@ -15,8 +15,8 @@ opts=GetoptLong.new(
     ["--receiver",      GetoptLong::OPTIONAL_ARGUMENT],
     ["--receiverPort",  GetoptLong::OPTIONAL_ARGUMENT],
     ["--input-file",   GetoptLong::OPTIONAL_ARGUMENT],
-    ["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
-    ["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
+    #["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
+    #["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
     *cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
 )
 
