@@ -18,7 +18,7 @@ opts=GetoptLong.new(
     ["--map",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
-    #*cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
+    *cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
 )
 
 
