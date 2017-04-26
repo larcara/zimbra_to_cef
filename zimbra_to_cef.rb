@@ -15,9 +15,10 @@ opts=GetoptLong.new(
     ["--receiver",      GetoptLong::OPTIONAL_ARGUMENT],
     ["--receiverPort",  GetoptLong::OPTIONAL_ARGUMENT],
     ["--input-file",   GetoptLong::OPTIONAL_ARGUMENT],
+    ["--map",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
-    *cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
+    #*cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
 )
 
 
@@ -95,11 +96,11 @@ opts.each do |opt,arg|
       @file=File.open(arg)
     when "--attribute_map_file"
       @map_file=File.open(arg)
-    else
-      fieldname = opt.gsub(/-/,'')
-      value=arg
-      @maps[value] = fieldname
-
+    when "--map"
+      arg.split("|").each do |_value|
+        value=_value.split(",")
+        @maps[value.first] = value.last
+      end
   end
 end
 
