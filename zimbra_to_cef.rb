@@ -59,10 +59,10 @@ opts.each do |opt,arg|
       exit(0)
     when "--input-file"
       @file=File.open(arg)
-    else
-      fieldname = opt.gsub(/-/,'')
-      value=arg
-      cef_event.send("%s=" % fieldname, value)
+    #else
+    #  fieldname = opt.gsub(/-/,'')
+    #  value=arg
+    #  cef_event.send("%s=" % fieldname, value)
   end
 end
 
@@ -74,14 +74,6 @@ if @receiver_host
   cef_sender.receiver=@receiver_host
   cef_sender.receiverPort=@receiver_port
 end
-#REGEXP
-time_and_pid= /(?<time>[\w]+\s+[\d]+\s[\d:]+)\s+(?<host>[\w]+)\s+(?<process>[\w\/]+)\[(?<pid>[\d]+)\]\:/
-format1= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\s(?<data>.+)/
-format2= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sfrom=(?<from_address>[^,]+),\ssize=(?<size>[^,]+),\snrcpt=(?<nrcpt>[\w]+)\s\((?<message>(.*))\)/
-format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\sorig_to=(?<orig_to_address>[^,]+),\srelay=(?<relay>[^,]+),\sdelay=(?<delay>[^,]+),\sdelays=(?<delays>[^,]+),\sdsn=(?<dns>[^,]+),\sstatus=(?<status>[\w]+)\s\((?<message>(.*))\)/
-
-
-#File.open(filename) do |log|
   @file.extend(File::Tail)
   @file.interval # 10
   @file.backward(10)
@@ -103,7 +95,7 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
           cef_event=CEF::Event.new
           a.names.each do |field|
             puts "#{field}: #{a[field]}" if @verbose > 1
-            cef_event.attrs[field] = a[field]
+            cef_event.send("#{field}=", a[field])
           end
           cef_sender.emit(cef_event) if cef_sender
           puts cef_event.to_s unless cef_sender
@@ -112,4 +104,3 @@ format3= /#{time_and_pid}\s(?<queue_id>[\w]{11,14}):\sto=(?<to_address>[^,]+),\s
       end
       puts line if (cef_event.nil? && @verbose > 0)
   end
-#end
