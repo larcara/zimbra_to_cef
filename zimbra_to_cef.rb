@@ -48,7 +48,7 @@ def print_schema(event)
 end
 
 def match_to_event(match_data, cef_event)
-  @maps.each_key {|k| cef_event.instance_eval{|| attr_accessor k}}
+  @maps.each_key {|k| cef_event.class.instance_eval{ attr_accessor k}}
   match_data.names.each do |_field|
     value = match_data[_field]
     field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
