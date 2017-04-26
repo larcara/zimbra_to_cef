@@ -59,7 +59,7 @@ def match_to_event(match_data, cef_event)
       cef_event.send( method_name, value)
 
     else
-      cef_event.set_additional( method_name, value)
+      cef_event.set_additional( field, value)
 
     end
   end
