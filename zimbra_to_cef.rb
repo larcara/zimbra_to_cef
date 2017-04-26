@@ -113,9 +113,7 @@ exit(0) if @file.nil?
 
 
 if @receiver_host
-  cef_sender=CEF::UDPSender.new
-  cef_sender.receiver=@receiver_host
-  cef_sender.receiverPort=@receiver_port
+  cef_sender=CEF::UDPSender.new(@receiver_host,@receiver_port)
 end
   @file.extend(File::Tail)
   @file.interval # 10
