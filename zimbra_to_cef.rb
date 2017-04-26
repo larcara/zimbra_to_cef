@@ -48,14 +48,20 @@ def print_schema(event)
 end
 
 def match_to_event(match_data, cef_event)
-  @maps.each {|k,v| cef_event.class.instance_eval{ attr_accessor v}}
+
   match_data.names.each do |_field|
     value = match_data[_field]
     field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
     value = DateTime.parse(value) if field == "eventTime"
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
-    cef_event.send( method_name, value) if cef_event.respond_to?(method_name)
+    if cef_event.respond_to?(method_name)
+      cef_event.send( method_name, value)
+
+    else
+      cef_event.set_additional( method_name, value)
+
+    end
   end
 end
 
@@ -97,8 +103,8 @@ opts.each do |opt,arg|
     when "--attribute_map_file"
       @map_file=File.open(arg)
     when "--map"
-      arg.split("|").each do |_value|
-        value=_value.split(",")
+      arg.split(",").each do |_value|
+        value=_value.split(":")
         @maps[value.first] = value.last
       end
   end
