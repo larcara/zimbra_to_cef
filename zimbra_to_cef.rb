@@ -49,9 +49,8 @@ end
 def match_to_event(match_data, cef_event)
   match_data.names.each do |_field|
     value = match_data[_field]
-    puts _field
-    field = @maps.has_key?(_field) ?  @maps[_field] : _field
-    value = DateTime.parse(value) if field == :eventTime
+    field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
+    value = DateTime.parse(value) if field == "eventTime"
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
     cef_event.send( method_name, value) if cef_event.respond_to?(method_name)
@@ -98,7 +97,7 @@ opts.each do |opt,arg|
     else
       fieldname = opt.gsub(/-/,'')
       value=arg
-      @maps[value.to_sym] = fieldname
+      @maps[value] = fieldname
 
   end
 end
