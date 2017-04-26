@@ -26,7 +26,7 @@ Usage: zimbra_to_cef --sourceAddress="192.168.1.1" [--eventAttribute="something"
      --receiver= syslog receiver hostname/ip
      --receiverPort= syslog port
      --input-file=  filename to input messagge cef message to
-     -
+     
      
 
 cef_sender will send CEF-formatted syslog messages to a receiver of your choice.
@@ -77,7 +77,7 @@ if @receiver_host
 end
   @file.extend(File::Tail)
   @file.interval # 10
-  @file.backward(10)
+  @file.backward(100)
   @file.tail do |line|
       cef_event = nil
       PostfixMatch::TO_SKIP.each do |reg_exp|
