@@ -45,6 +45,17 @@ def print_schema(event)
   event.attrs.keys.collect {|k| k.to_s}.sort.each {|a| puts a}
 end
 
+def match_to_event(match_data, cef_event)
+  match_data.names.each do |field|
+    value = a[field]
+    value = DateTime.parse(value) if field == "eventTime"
+    puts "#{field}: #{value}" if @verbose > 1
+    method_name =  "#{field}=".to_sym
+    cef_event.send( method_name, value) if cef_event.respond_to?(method_name)
+  end
+end
+
+
 @verbose = 0
 opts.each do |opt,arg|
   # TODO: set up cases for startTime, receiptTime, endTime to parse
@@ -111,11 +122,7 @@ end
           a = line.match(reg_exp)
           if a
             cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
-            a.names.each do |field|
-              puts "#{field}: #{a[field]}" if @verbose > 1
-              method_name =  "#{field}=".to_sym
-              cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
-            end
+            match_to_event(a, cef_event)
             cef_sender.emit(cef_event) if cef_sender
             puts cef_event.to_s unless cef_sender
             break
@@ -128,11 +135,7 @@ end
           if a
             cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct,
                                      deviceEventClassId: "0:event", name: "mailbox event")
-            a.names.each do |field|
-              puts "#{field}: #{a[field]}" if @verbose > 1
-              method_name =  "#{field}=".to_sym
-              cef_event.send( method_name, a[field]) if cef_event.respond_to?(method_name)
-            end
+            match_to_event(a, cef_event)
             cef_sender.emit(cef_event) if cef_sender
             puts cef_event.to_s unless cef_sender
             break
@@ -141,3 +144,5 @@ end
       end
       puts line if (cef_event.nil? && @verbose > 0)
   end
+
+
