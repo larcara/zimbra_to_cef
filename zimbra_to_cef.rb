@@ -147,7 +147,7 @@ end
 
             match_to_event(a, cef_event)
             cef_sender.emit(cef_event) if cef_sender
-            puts cef_event.to_s unless cef_sender
+            puts cef_event.to_s if (cef_sender.nil? || @verbose > 0)
             break
           end
         end
@@ -165,7 +165,7 @@ end
           end
         end
       end
-      puts line if (cef_event.nil? && @verbose > 1)
+      puts line if (cef_event.nil? && @verbose > 0)
   end
 
 
