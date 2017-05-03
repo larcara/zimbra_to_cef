@@ -53,7 +53,7 @@ def match_to_event(match_data, cef_event)
   match_data.names.each do |_field|
     value = match_data[_field]
     field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
-    value = DateTime.parse(value) if field == "event_ime"
+    value = DateTime.parse(value) if field == "event_time"
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
     if cef_event.respond_to?(method_name)
