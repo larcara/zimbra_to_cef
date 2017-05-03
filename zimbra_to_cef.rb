@@ -14,8 +14,9 @@ opts=GetoptLong.new(
     ["--schema",        GetoptLong::OPTIONAL_ARGUMENT],
     ["--receiver",      GetoptLong::OPTIONAL_ARGUMENT],
     ["--receiverPort",  GetoptLong::OPTIONAL_ARGUMENT],
-    ["--input-file",   GetoptLong::OPTIONAL_ARGUMENT],
-    ["--map",   GetoptLong::OPTIONAL_ARGUMENT],
+    ["--input-file",    GetoptLong::OPTIONAL_ARGUMENT],
+    ["--map",           GetoptLong::OPTIONAL_ARGUMENT],
+    ["--unprocessed",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceVendor",   GetoptLong::OPTIONAL_ARGUMENT],
     #["--deviceProduct",   GetoptLong::OPTIONAL_ARGUMENT],
     *cef_event.attrs.keys.collect {|o| ["--#{o}", GetoptLong::OPTIONAL_ARGUMENT]}
@@ -52,7 +53,7 @@ def match_to_event(match_data, cef_event)
   match_data.names.each do |_field|
     value = match_data[_field]
     field = @maps.has_key?(_field.to_s) ?  @maps[_field] : _field.to_s
-    value = DateTime.parse(value) if field == "eventTime"
+    value = DateTime.parse(value) if field == "event_ime"
     puts "#{field}: #{value}" if @verbose > 1
     method_name =  "#{field}=".to_sym
     if cef_event.respond_to?(method_name)
@@ -67,12 +68,14 @@ end
 
 
 @maps = {}
-
+@show_unprocessed = false
 
 opts.each do |opt,arg|
   # TODO: set up cases for startTime, receiptTime, endTime to parse
   #       text and convert to unix time * 1000
   case opt
+    when "--unprocessed"
+      @show_unprocessed = true
     when "--deviceVendor"
       @deviceVendor = arg
     when "--deviceProduct"
@@ -165,7 +168,7 @@ end
           end
         end
       end
-      puts line if (cef_event.nil? && @verbose > 1)
+      puts line if (cef_event.nil? && @show_unprocessed )
   end
 
 
