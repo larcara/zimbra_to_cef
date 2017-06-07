@@ -7,7 +7,7 @@ require_relative "./mailbox_match.rb"
 
 @verbose=0
 @file=nil
-SEVERITY = {"NOTICE" => 0, "INFO" => 1, "WARNING" => 2, "ERROR" => 3 }
+SEVERITY = {"NOTICE" => "0", "INFO" => "1", "WARNING" => "2", "ERROR" => "3" }
 cef_event=CEF::Event.new
 opts=GetoptLong.new(
     ["--verbose",       GetoptLong::OPTIONAL_ARGUMENT],
