@@ -18,8 +18,7 @@ module MailboxMatch
 ##STANDARD SCHEMA
   TIME_AND_PID= /(?<event_time>[\d-]+\s[\d:,]+)\s(?<deviceSeverity>[\w]+)/
   MAILBOX_NAME_AND_IP = /(?<account_name>name=.*;)?(?<aname>aname=.*;)?(?<ip>ip=.*;)?(?<ua>ua=.*;)?/
-  LMTP_DELIVERING = /#{TIME_AND_PID}\s+\[(?<process>[\w]+-[\d]+)\]\s\[#{MAILBOX_NAME_AND_IP}\]\s\[.*\]\slmtp - Delivering message:\ssize=(?<size>[\d]+)\sbytes, nrcpts=[\d]+,\ssender=(?<sender>[\S]+@[\S]+),\smsgid=(?<mail_message_id>[\S]+)/
-  MAILBOX_ADDING =  /#{TIME_AND_PID}\s+\[(?<process>[\w|\d]+)-[\d]+(:\/\/.*\/service\/soap\/(?<soap_action>[\S]+))?\]\s\[#{MAILBOX_NAME_AND_IP}\]\smailop - Adding Message:\sid=(?<zimbra_message_id>[\d]+),\sMessage-ID=(?<mail_message_id>[\S]+),\sparentId=(?<parent_id>[-|\d]+),\sfolderId=(?<folder_id>[\d]+),\sfolderName=(?<folder_name>[\w]+)./
+  LMTP_DELIVERING = /#{TIME_AND_PID}\s+\[(?<process>[\w]+-[\d]+)\]\s\[#{MAILBOX_NAME_AND_IP}\]\slmtp - Delivering message:\ssize=(?<size>[\d]+)\sbytes, nrcpts=[\d]+,\ssender=(?<sender>[\S]+@[\S]+),\smsgid=(?<mail_message_id>[\S]+)/
   MAILBOX_ADDING =  /#{TIME_AND_PID}\s+\[(?<process>[\w|\d]+)-[\d]+(:\/\/.*\/service\/soap\/(?<soap_action>[\S]+))?\]\s\[#{MAILBOX_NAME_AND_IP}\]\smailop - Adding Message:\sid=(?<zimbra_message_id>[\d]+),\sMessage-ID=(?<mail_message_id>[\S]+),\sparentId=(?<parent_id>[-|\d]+),\sfolderId=(?<folder_id>[\d]+),\sfolderName=(?<folder_name>[\w]+)./
   SENDIG_TO_MTA = /#{TIME_AND_PID}\s+\[(?<process>[\w|\d]+)-[\d]+(:\/\/.*\/service\/soap\/(?<soap_action>[\S]+))?\]\s\[#{MAILBOX_NAME_AND_IP}\]\ssmtp - Sending message to MTA at localhost:\sMessage-ID=(?<mail_message_id>[\S]+),\sreplyType=(?<reply_type>[\S]+)/
 
