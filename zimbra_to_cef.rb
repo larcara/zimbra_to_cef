@@ -57,7 +57,7 @@ def match_to_event(match_data, cef_event)
     case field
       when /event_time/i
         value = DateTime.parse(value)
-      when /severiry/i
+      when /severity/i
         value = SEVERITY[value.upcase] || 5
     end
 
