@@ -183,7 +183,8 @@ end
           puts line if (cef_event.nil? && @show_unprocessed )
       end
   else
-      while line << STDIN.gets
+      while STDIN.gets
+        line = $_.chomp
         cef_event = nil
         cef_event ||= postfix_to_cef(line)
         cef_event ||=  mailbox_to_cef(line)
