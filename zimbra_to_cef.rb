@@ -94,7 +94,7 @@ def postfix_to_cef(line)
   PostfixMatch::TO_SKIP.each do |reg_exp|
     puts "testing skipping #{reg_exp}" if @verbose > 2
     a = line.match(reg_exp)
-    return true  if a
+    return true if a
   end
   PostfixMatch::REG_EXPS.each do |reg_exp|
     puts "testing #{reg_exp}" if @verbose > 2
@@ -187,7 +187,7 @@ end
         line = $_.chomp
         cef_event = nil
         cef_event ||= postfix_to_cef(line)
-        cef_event ||=  mailbox_to_cef(line)
+        cef_event ||= mailbox_to_cef(line)
         cef_sender.emit(cef_event) if cef_sender && cef_event.is_a?(CEF::Event)
         puts cef_event.to_s if (cef_sender.nil? || @verbose > 0)
         puts line if (cef_event.nil? && @show_unprocessed )
