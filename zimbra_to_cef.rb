@@ -80,7 +80,7 @@ def mailbox_to_cef(line)
     a = line.match(reg_exp)
     if a
       cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct,
-                               deviceEventClassId: "0:event", name: "mailbox event")
+                               deviceEventClassId: "0:event", name: "mailbox event", message: line)
       match_to_event(a, cef_event)
       #cef_sender.emit(cef_event) if cef_sender
       #puts cef_event.to_s if  @verbose > 0
@@ -100,7 +100,7 @@ def postfix_to_cef(line)
     puts "testing #{reg_exp}" if @verbose > 2
     a = line.match(reg_exp)
     if a
-      cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event")
+      cef_event=CEF::Event.new(deviceVendor: @deviceVendor, deviceProduct: @deviceProduct, deviceEventClassId: "0:event", name: "postfix event", message: line)
 
       match_to_event(a, cef_event)
       #cef_sender.emit(cef_event) if cef_sender
